@@ -3,27 +3,38 @@ require('dotenv').config()
 const mongoose = require("mongoose")
 const logger = require("./util/logger")
 
+
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 mongoose.connection.on("error", function (err) {
-    logger.error(err);
-    process.exit(1);
+    logger.error(err)
+    process.exit(1)
 })
 
-mongoose.connection.once("open", function () {
-    const { Telegraf } = require('telegraf');
+mongoose.connection.once("open", async function () {
+    const { Telegraf, Scenes, session } = require('telegraf')
 
-    const bot = new Telegraf(process.env.BOT_TOKEN);
-    bot.start((ctx) => ctx.reply('Welcome'));
-    bot.help((ctx) => ctx.reply('Send me a sticker'));
-    bot.on('sticker', (ctx) => ctx.reply('👍'));
-    bot.hears('hi', (ctx) => ctx.reply('Hey there'));
-    bot.command('schedule', (ctx) => {
-        ctx.reply(`Hello ${ctx.update.message.from.first_name}`)
-        console.log(ctx.message.from)
-    })
+    const start = require("../src/controllers/start/index")
+    const { getMainKeyboard } = require("./util/keyboards");
 
-    bot.launch();
+    const bot = new Telegraf(process.env.BOT_TOKEN)
+    logger.info("Bot was started")
+
+    const stage = new Scenes.Stage([
+        start,
+    ]);
+
+    bot.use(session());
+    bot.use(stage.middleware());
+
+    bot.command('back', async (ctx) => await ctx.reply("Возврат назад", getMainKeyboard()));
+    bot.start(async (ctx) => {
+        await ctx.scene.enter('start')
+    });
+
+    bot.catch(err => logger.error(err))
+
+    await bot.launch();
 
     process.once('SIGINT', () => bot.stop('SIGINT'));
     process.once('SIGTERM', () => bot.stop('SIGTERM'));
