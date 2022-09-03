@@ -2,14 +2,16 @@
   "name": "schedule-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/bot.js",
   "scripts": {
-    "dev": "node app.js"
+    "dev": "node src/bot.js"
   },
   "author": "tyulyukov",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.2",
-    "telegraf": "^4.9.1"
+    "mongoose": "^6.5.4",
+    "telegraf": "^4.9.1",
+    "winston": "^3.8.1"
   }
 }
