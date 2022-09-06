@@ -1,22 +1,53 @@
 const { Markup } = require('telegraf')
 
-function getBackKeyboard() {
-    const backKeyboardBack = "↩️Вернуться назад";
-    const backKeyboard = Markup.keyboard([backKeyboardBack]).resize();
+const addButton = "➕ Добавить"
+const deleteButton = "🗑️ Удалить"
+const editButton = "✏️ Редактировать "
 
-    return backKeyboard
-};
+const backButton = "↩️ Вернуться назад"
+const backKeyboard = Markup.keyboard([backButton]).resize()
 
-function getMainKeyboard() {
-    const mainKeyboardLessons = "📚️ Уроки";
-    const mainKeyboardSchedule = "🗓️ Расписание";
-    const mainKeyboard = Markup.keyboard([
-            [mainKeyboardLessons],
-            [mainKeyboardSchedule],
-        ]
-    ).resize();
+const cancelButton = "❌ Отмена"
+const cancelKeyboard = Markup.keyboard([cancelButton]).resize()
 
-    return mainKeyboard
-};
+const acceptButton = "✅ Подтвердить"
+const acceptCancelKeyboard = Markup.keyboard([
+    [acceptButton],
+    [cancelButton]
+]).resize()
 
-module.exports = { getMainKeyboard, getBackKeyboard }
+const saveButton = "💾 Сохранить"
+const saveCancelKeyboard = Markup.keyboard([
+    [saveButton],
+    [cancelButton]
+]).resize()
+
+const addDeleteBackKeyboard = Markup.keyboard([
+    [addButton],
+    [editButton],
+    [deleteButton],
+    [backButton]
+]).resize()
+
+const addBackKeyboard = Markup.keyboard([
+    [addButton],
+    [backButton]
+]).resize()
+
+const deleteBackKeyboard = Markup.keyboard([
+    [editButton],
+    [deleteButton],
+    [backButton]
+]).resize()
+
+const subjectsButton = "📚️ Уроки"
+const scheduleButton = "🗓️ Расписание"
+const mainKeyboard = Markup.keyboard([
+    [subjectsButton],
+    [scheduleButton]
+]).resize()
+
+module.exports = { subjectsButton, scheduleButton, backButton, addButton, deleteButton, editButton, cancelButton,
+                   saveButton, acceptButton,
+                   mainKeyboard, backKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard,
+                   cancelKeyboard, saveCancelKeyboard, acceptCancelKeyboard }
