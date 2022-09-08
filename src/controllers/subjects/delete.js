@@ -11,7 +11,7 @@ deleteSubject.enter(async (ctx) => {
         return await ctx.scene.enter('subjects')
     }
 
-    await ctx.replyWithMarkdownV2(`⚠️ Вы действительно хотите удалить урок ${ctx.session.selectedSubject.name}? \n\n 📌 При удалении урок автоматически удалится в расписании`, acceptCancelKeyboard)
+    await ctx.replyWithHTML(`⚠️ Вы действительно хотите удалить урок <b>${ctx.session.selectedSubject.name}</b>? \n\n 📌 При удалении урок автоматически удалится в расписании`, acceptCancelKeyboard)
 })
 
 deleteSubject.leave(async (ctx) => {

@@ -15,32 +15,48 @@ const addSubject = new Scenes.WizardScene("addSubject",
         ctx.wizard.state.subject.links = []
         ctx.wizard.state.subject.user = userId
         ctx.wizard.state.link = {}
-        await ctx.replyWithMarkdownV2(`*Введите имя урока* \n\n📌 если не хотите добавлять урок нажмите кнопку *${cancelButton}*`, cancelKeyboard)
+        await ctx.replyWithHTML(`<b>Введите имя урока</b> \n\n📌 если не хотите добавлять урок нажмите кнопку <b>${cancelButton}</b>`, cancelKeyboard)
         return ctx.wizard.next()
     },
     async (ctx) => {
         if (!ctx.message || !ctx.message.text || ctx.message.text.length >= 25) {
-            await ctx.replyWithMarkdownV2('*Введите настоящее имя урока* \\(_до 25 символов_\\)', cancelKeyboard);
+            await ctx.replyWithHTML('⚠️ <b>Введите настоящее имя урока</b> (<i>до 25 символов</i>)', cancelKeyboard);
             return;
         }
 
-        ctx.wizard.state.subject.name = ctx.message.text
-        await ctx.replyWithMarkdownV2(`*Введите название сервиса* на который вы хотите добавить ссылку \\(_Zoom, Classroom, Эл\\. Книга и тд_\\) \n\n📌 если не хотите добавлять ссылку на сервис \\- нажмите кнопку *${saveButton}*`, saveCancelKeyboard)
+        const name = ctx.message.text
+            .replaceAll("<", "")
+            .replaceAll(">", "")
+
+        let subject = await Subject.findOne({ user: String(ctx.from.id), name: name })
+
+        if (subject) {
+            await ctx.replyWithHTML('⚠️ <b>Это имя уже занято</b>', cancelKeyboard);
+            return;
+        }
+
+        ctx.wizard.state.subject.name = name
+
+        await ctx.replyWithHTML(`<b>Введите название сервиса</b> на который вы хотите добавить ссылку (<i>Zoom, Classroom, Эл. Книга и тд</i>) \n\n📌 если не хотите добавлять ссылку на сервис - нажмите кнопку <b>${saveButton}</b>`, saveCancelKeyboard)
         return ctx.wizard.next()
     },
     async (ctx) => {
         if (!ctx.message || !ctx.message.text || ctx.message.text.length >= 25) { // TODO validation on spec symbols
-            await ctx.reply('*Введите настоящее название сервиса* \\(_до 25 символов_\\)', saveCancelKeyboard);
+            await ctx.replyWithHTML('<b>⚠️ Введите настоящее название сервиса</b> (_до 25 символов_)', saveCancelKeyboard);
             return;
         }
 
-        ctx.wizard.state.link.name = ctx.message.text
-        await ctx.replyWithMarkdownV2(`*Вставьте ссылку на сервис* \n\n📌 если не хотите добавлять ссылку на сервис \\- нажмите кнопку *${saveButton}*`, saveCancelKeyboard)
+        await ctx.replyWithHTML(`<b>Вставьте ссылку на сервис</b> \n\n📌 если не хотите добавлять ссылку на сервис - нажмите кнопку <b>${saveButton}</b>`, saveCancelKeyboard)
         return ctx.wizard.next()
     },
     async (ctx) => {
-        if (!ctx.message || !ctx.message.text || !ctx.message.text.startsWith('http://') && !ctx.message.text.startsWith('https://')) {
-            await ctx.replyWithMarkdownV2(`*Вставьте только ссылку* \\(начинается на http:// или https://\\)`, saveCancelKeyboard);
+        if (!ctx.message || !ctx.message.text) {
+            await ctx.replyWithHTML(`⚠️ <b>Вставьте только ссылку</b>`, saveCancelKeyboard);
+            return;
+        }
+
+        if (!isValidHttpUrl(ctx.message.text)) {
+            await ctx.replyWithHTML(`⚠️ <b>Вставьте правильную ссылку</b>`, saveCancelKeyboard);
             return;
         }
 
@@ -53,7 +69,7 @@ const addSubject = new Scenes.WizardScene("addSubject",
             return await saveSubject(ctx)
         }
 
-        await ctx.replyWithMarkdownV2(`*Введите еще одно название сервиса* на который вы хотите добавить ссылку \\(_Zoom, Classroom, Эл\\. Книга и тд_\\) \n\n📌 если не хотите добавлять ссылку на сервис \\- нажмите кнопку *${saveButton}*`, saveCancelKeyboard)
+        await ctx.replyWithHTML(`<b>Введите еще одно название сервиса</b> на который вы хотите добавить ссылку (<i>Zoom, Classroom, Эл. Книга и тд</i>) \n\n📌 если не хотите добавлять ссылку на сервис - нажмите кнопку <b>${saveButton}</b>`, saveCancelKeyboard)
         return ctx.wizard.selectStep(2)
     }
 )
@@ -69,10 +85,22 @@ async function saveSubject(ctx) {
 
         const subject = new Subject(ctx.wizard.state.subject)
         await subject.save()
-        await ctx.reply("✅ Урок добавлен")
+        await ctx.replyWithHTML("✅ Урок добавлен")
         deleteFromSession(ctx, "selectedSubject")
         return await ctx.scene.enter('subjects')
     }
+}
+
+function isValidHttpUrl(string) {
+    let url;
+
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
 }
 
 module.exports = addSubject;

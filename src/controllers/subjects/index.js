@@ -73,11 +73,11 @@ subjects.enter(async (ctx) => {
     if (subjects && subjects.length > 0) {
         const inlineSubjectsKeyboard = getInlineSubjectsKeyboard(subjects, 0)
 
-        await ctx.replyWithMarkdownV2(`*Уроки \\(${subjects.length} из ${maxSubjectsLength}\\)*`, keyboard);
-        await ctx.replyWithMarkdownV2(`📌 Нажмите на урок для просмотра подробной информации, удаления и редактирования\n\n`, inlineSubjectsKeyboard)
+        await ctx.replyWithHTML(`<b>Уроки (${subjects.length} из ${maxSubjectsLength})</b>`, keyboard);
+        await ctx.replyWithHTML(`📌 Нажмите на урок для просмотра подробной информации, удаления и редактирования\n\n`, inlineSubjectsKeyboard)
     }
     else {
-        await ctx.replyWithMarkdownV2(`У вас 0 уроков, добавьте новый с помощью кнопки *${addButton}*`, keyboard);
+        await ctx.replyWithHTML(`У вас 0 уроков, добавьте новый с помощью кнопки <b>${addButton}</b>`, keyboard);
     }
 })
 
@@ -86,7 +86,7 @@ subjects.leave(async (ctx) => {
         deleteFromSession(ctx, "subjects")
         deleteFromSession(ctx, "selectedSubject")
 
-        await ctx.replyWithMarkdownV2("📋 *Главное меню*", mainKeyboard);
+        await ctx.replyWithHTML("📋 <b>Главное меню</b>", mainKeyboard);
     }
 
     deleteFromSession(ctx, "subjectsPage")
@@ -98,7 +98,7 @@ subjects.hears(backButton, async (ctx) => await ctx.scene.leave());
 subjects.hears(addButton, async (ctx) => {
     if (ctx.session.subjects && ctx.session.subjects.length >= maxSubjectsLength) {
         const keyboard = getSubjectsManageKeyboard(ctx, ctx.session.subjects)
-        await ctx.replyWithMarkdownV2(`🚫 *Нельзя* добавить уроков больше чем ${maxSubjectsLength}`, keyboard)
+        await ctx.replyWithHTML(`🚫 <b>Нельзя</b> добавить уроков больше чем ${maxSubjectsLength}`, keyboard)
         return
     }
 
@@ -108,7 +108,7 @@ subjects.hears(addButton, async (ctx) => {
 subjects.hears(deleteButton, async (ctx) => {
     if (!ctx.session["selectedSubject"]) {
         const keyboard = getSubjectsManageKeyboard(ctx, ctx.session.subjects)
-        await ctx.replyWithMarkdownV2(`🚫 *Выберите* урок для удаления`, keyboard)
+        await ctx.replyWithHTML(`🚫 <b>Выберите</b> урок для удаления`, keyboard)
         return
     }
 
@@ -141,7 +141,7 @@ subjects.on('callback_query', async (ctx) => {
 
     const subject = await Subject.findOne({ _id: ctx.callbackQuery.data })
 
-    let subjectRepresentation = `📓 Выбранный урок: *${subject.name}*\n\n`
+    let subjectRepresentation = `📓 Выбранный урок: <b>${subject.name}</b>\n\n`
     for (const link of subject.links) {
         subjectRepresentation += `${link.name}: ${link.url}\n`
     }
@@ -150,9 +150,9 @@ subjects.on('callback_query', async (ctx) => {
 
     await ctx.editMessageText(subjectRepresentation, {
         reply_markup: getInlineSubjectsKeyboard(ctx.session.subjects, ctx.session.subjectsPage).reply_markup,
-        parse_mode: "markdown"
+        parse_mode: "html"
     })
-    await ctx.replyWithMarkdownV2(`✅ Выбран урок *${subject.name}*`, getSubjectsManageKeyboard(ctx, ctx.session.subjects))
+    await ctx.replyWithHTML(`✅ Выбран урок <b>${subject.name}</b>`, getSubjectsManageKeyboard(ctx, ctx.session.subjects))
     await ctx.answerCbQuery()
 })
 
