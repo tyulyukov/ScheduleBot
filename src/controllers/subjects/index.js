@@ -3,6 +3,7 @@ const Subject = require("../../database/models/subject")
 const { mainKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard, backButton, addButton, deleteButton, backKeyboard } = require("../../util/keyboards");
 const { saveToSession, deleteFromSession } = require("../../util/session");
 const { formatTextByNumber } = require("../../util/format")
+const logger = require("../../util/logger")
 
 const maxSubjectsLength = 50
 const subjectPerPage = 5
@@ -139,7 +140,12 @@ subjects.on('callback_query', async (ctx) => {
         return await ctx.answerCbQuery()
     }
 
-    const subject = await Subject.findOne({ _id: ctx.callbackQuery.data })
+    const subjectId = String(ctx.callbackQuery.data)
+
+    if (ctx.session.selectedSubject && ctx.session.selectedSubject._id.toString() === subjectId)
+        return await ctx.answerCbQuery()
+
+    const subject = await Subject.findOne({ _id: subjectId })
 
     let subjectRepresentation = `📓 Выбранный урок: <b>${subject.name}</b>\n\n`
     for (const link of subject.links) {

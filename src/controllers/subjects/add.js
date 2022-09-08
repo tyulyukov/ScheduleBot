@@ -28,6 +28,11 @@ const addSubject = new Scenes.WizardScene("addSubject",
             .replaceAll("<", "")
             .replaceAll(">", "")
 
+        if (name === '') {
+            await ctx.replyWithHTML(`⚠️ <b>Введите настоящее имя урока без этих символов</b>`, cancelKeyboard);
+            return;
+        }
+
         let subject = await Subject.findOne({ user: String(ctx.from.id), name: name })
 
         if (subject) {
@@ -45,6 +50,8 @@ const addSubject = new Scenes.WizardScene("addSubject",
             await ctx.replyWithHTML('<b>⚠️ Введите настоящее название сервиса</b> (_до 25 символов_)', saveCancelKeyboard);
             return;
         }
+
+        ctx.wizard.state.link.name = ctx.message.text
 
         await ctx.replyWithHTML(`<b>Вставьте ссылку на сервис</b> \n\n📌 если не хотите добавлять ссылку на сервис - нажмите кнопку <b>${saveButton}</b>`, saveCancelKeyboard)
         return ctx.wizard.next()
@@ -92,15 +99,7 @@ async function saveSubject(ctx) {
 }
 
 function isValidHttpUrl(string) {
-    let url;
-
-    try {
-        url = new URL(string);
-    } catch (_) {
-        return false;
-    }
-
-    return url.protocol === "http:" || url.protocol === "https:";
+    return /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm.test(string)
 }
 
 module.exports = addSubject;
