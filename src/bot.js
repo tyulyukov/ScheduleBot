@@ -19,8 +19,11 @@ mongoose.connection.once("open", async function () {
     const subjects = require("../src/controllers/subjects/index")
     const addSubject = require("../src/controllers/subjects/add")
     const deleteSubject = require("../src/controllers/subjects/delete")
+    const editSubject = require("../src/controllers/subjects/edit")
+    const editSubjectName = require("../src/controllers/subjects/editName")
 
     const schedule = require("../src/controllers/schedule/index")
+    const scheduleDay = require("../src/controllers/schedule/day")
 
     const { mainKeyboard, subjectsButton, scheduleButton } = require("./util/keyboards")
 
@@ -32,7 +35,10 @@ mongoose.connection.once("open", async function () {
         subjects,
         schedule,
         addSubject,
-        deleteSubject
+        deleteSubject,
+        editSubject,
+        editSubjectName,
+        scheduleDay
     ]);
 
     bot.use(session({ collectionName: 'sessions' }));

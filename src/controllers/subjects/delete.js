@@ -1,5 +1,4 @@
 const { Scenes } = require("telegraf")
-const logger = require("../../util/logger")
 const Subject = require("../../database/models/subject")
 const { cancelButton, acceptButton, acceptCancelKeyboard } = require("../../util/keyboards");
 const { deleteFromSession } = require("../../util/session");
@@ -15,14 +14,14 @@ deleteSubject.enter(async (ctx) => {
 })
 
 deleteSubject.leave(async (ctx) => {
-
+    if (ctx.session.selectedSubject)
+        deleteFromSession(ctx, "selectedSubject")
 })
 
 deleteSubject.command('back', async (ctx) => await ctx.scene.enter('subjects'));
 deleteSubject.hears(cancelButton, async (ctx) => { await ctx.scene.enter('subjects') })
 deleteSubject.hears(acceptButton, async (ctx) => {
     await Subject.deleteOne({ _id: ctx.session.selectedSubject._id })
-    deleteFromSession(ctx, "selectedSubject")
     await ctx.reply("✅ Урок удален")
     await ctx.scene.enter('subjects')
 })

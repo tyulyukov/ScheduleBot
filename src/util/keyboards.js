@@ -2,13 +2,22 @@ const { Markup } = require('telegraf')
 
 const addButton = "➕ Добавить"
 const deleteButton = "🗑️ Удалить"
-const editButton = "✏️ Редактировать "
+const editButton = "✏️ Редактировать"
+
+const editNameButton = "✏️ Редактировать имя"
+const editLinksButton = "✏️ Редактировать ссылки"
 
 const backButton = "↩️ Вернуться назад"
 const backKeyboard = Markup.keyboard([backButton]).resize()
 
 const cancelButton = "❌ Отмена"
 const cancelKeyboard = Markup.keyboard([cancelButton]).resize()
+
+const editCancelKeyboard = Markup.keyboard([
+    [editNameButton],
+    [editLinksButton],
+    [cancelButton]
+]).resize()
 
 const acceptButton = "✅ Подтвердить"
 const acceptCancelKeyboard = Markup.keyboard([
@@ -47,7 +56,23 @@ const mainKeyboard = Markup.keyboard([
     [scheduleButton]
 ]).resize()
 
+const mondayButton = "Понедельник"
+const tuesdayButton = "Вторник"
+const wednesdayButton = "Среда"
+const thursdayButton = "Четверг"
+const fridayButton = "Пятница"
+const saturdayButton = "Суботта"
+const sundayButton = "Воскресенье"
+
+const scheduleBackKeyboard = Markup.keyboard([
+    [mondayButton, tuesdayButton],
+    [wednesdayButton, thursdayButton],
+    [fridayButton, saturdayButton],
+    [sundayButton, backButton]
+]).resize()
+
 module.exports = { subjectsButton, scheduleButton, backButton, addButton, deleteButton, editButton, cancelButton,
-                   saveButton, acceptButton,
+                   saveButton, acceptButton, editLinksButton, editNameButton, mondayButton, tuesdayButton,
+                   wednesdayButton, thursdayButton, fridayButton, saturdayButton, sundayButton,
                    mainKeyboard, backKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard,
-                   cancelKeyboard, saveCancelKeyboard, acceptCancelKeyboard }
+                   cancelKeyboard, saveCancelKeyboard, acceptCancelKeyboard, editCancelKeyboard, scheduleBackKeyboard, }

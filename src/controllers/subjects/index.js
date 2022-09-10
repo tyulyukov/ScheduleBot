@@ -1,6 +1,8 @@
 const { Scenes, Markup } = require("telegraf")
 const Subject = require("../../database/models/subject")
-const { mainKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard, backButton, addButton, deleteButton, backKeyboard } = require("../../util/keyboards");
+const { mainKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard, backButton, addButton, deleteButton, backKeyboard,
+    editButton
+} = require("../../util/keyboards");
 const { saveToSession, deleteFromSession } = require("../../util/session");
 const { formatTextByNumber } = require("../../util/format")
 const logger = require("../../util/logger")
@@ -115,6 +117,16 @@ subjects.hears(deleteButton, async (ctx) => {
 
     saveToSession(ctx, "isTransition", true)
     await ctx.scene.enter('deleteSubject')
+})
+subjects.hears(editButton, async (ctx) => {
+    if (!ctx.session["selectedSubject"]) {
+        const keyboard = getSubjectsManageKeyboard(ctx, ctx.session.subjects)
+        await ctx.replyWithHTML(`🚫 <b>Выберите</b> урок для редактирования`, keyboard)
+        return
+    }
+
+    saveToSession(ctx, "isTransition", true)
+    await ctx.scene.enter('editSubject')
 })
 subjects.on('callback_query', async (ctx) => {
     if (!ctx.session.subjectsPage)

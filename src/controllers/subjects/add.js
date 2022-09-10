@@ -4,6 +4,7 @@ const Subject = require("../../database/models/subject")
 const Link = require("../../database/models/link")
 const { backButton, cancelKeyboard, cancelButton, saveCancelKeyboard, saveButton } = require("../../util/keyboards");
 const { deleteFromSession } = require("../../util/session");
+const { isValidHttpUrl, isValidSubjectName} = require("../../util/validator");
 
 const maxLinksCount = 5
 
@@ -19,7 +20,7 @@ const addSubject = new Scenes.WizardScene("addSubject",
         return ctx.wizard.next()
     },
     async (ctx) => {
-        if (!ctx.message || !ctx.message.text || ctx.message.text.length >= 25) {
+        if (!ctx.message || !ctx.message.text || !isValidSubjectName(ctx.message.text)) {
             await ctx.replyWithHTML('⚠️ <b>Введите настоящее имя урока</b> (<i>до 25 символов</i>)', cancelKeyboard);
             return;
         }
@@ -27,11 +28,6 @@ const addSubject = new Scenes.WizardScene("addSubject",
         const name = ctx.message.text
             .replaceAll("<", "")
             .replaceAll(">", "")
-
-        if (name === '') {
-            await ctx.replyWithHTML(`⚠️ <b>Введите настоящее имя урока без этих символов</b>`, cancelKeyboard);
-            return;
-        }
 
         let subject = await Subject.findOne({ user: String(ctx.from.id), name: name })
 
@@ -46,7 +42,7 @@ const addSubject = new Scenes.WizardScene("addSubject",
         return ctx.wizard.next()
     },
     async (ctx) => {
-        if (!ctx.message || !ctx.message.text || ctx.message.text.length >= 25) { // TODO validation on spec symbols
+        if (!ctx.message || !ctx.message.text || !isValidSubjectName(ctx.message.text)) {
             await ctx.replyWithHTML('<b>⚠️ Введите настоящее название сервиса</b> (_до 25 символов_)', saveCancelKeyboard);
             return;
         }
@@ -96,10 +92,6 @@ async function saveSubject(ctx) {
         deleteFromSession(ctx, "selectedSubject")
         return await ctx.scene.enter('subjects')
     }
-}
-
-function isValidHttpUrl(string) {
-    return /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm.test(string)
 }
 
 module.exports = addSubject;

@@ -1,7 +1,10 @@
 const { Scenes } = require("telegraf")
 const logger = require("../../util/logger");
 const Schedule = require("../../database/models/schedule")
-const { mainKeyboard, backKeyboard, backButton } = require("../../util/keyboards");
+const { mainKeyboard, scheduleBackKeyboard, backButton, mondayButton, tuesdayButton, wednesdayButton, thursdayButton,
+    fridayButton, saturdayButton, sundayButton
+} = require("../../util/keyboards");
+const { saveToSession, deleteFromSession } = require("../../util/session");
 
 const schedule = new Scenes.BaseScene("schedule")
 
@@ -26,14 +29,32 @@ schedule.enter(async (ctx) => {
         await schedule.save()
     }
 
-    await ctx.reply(JSON.stringify(schedule), backKeyboard);
+    saveToSession(ctx, "schedule", schedule)
+    await ctx.replyWithHTML(`📅 <b>Ваше расписание</b> \n\n📌 для просмотра подробной информации выберите день недели`, scheduleBackKeyboard);
 })
 
 schedule.leave(async (ctx) => {
-    await ctx.reply("Главное меню", mainKeyboard);
+    if (ctx.session["isTransition"] !== true) {
+        deleteFromSession(ctx, "schedule")
+        await ctx.replyWithHTML("Главное меню", mainKeyboard);
+    }
+
+    deleteFromSession(ctx, "isTransition")
 });
 
 schedule.command('back', async (ctx) => await ctx.scene.leave());
 schedule.hears(backButton, async (ctx) => await ctx.scene.leave());
+schedule.hears(mondayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.monday) })
+schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.tuesday) })
+schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.wednesday) })
+schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.thursday) })
+schedule.hears(fridayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.friday) })
+schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.saturday) })
+schedule.hears(sundayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.sunday) })
+
+async function enterScheduleDay(ctx, items) {
+    saveToSession(ctx, "isTransition", true)
+    await ctx.scene.enter('scheduleDay', { scheduleItems: items })
+}
 
 module.exports = schedule;

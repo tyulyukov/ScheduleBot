@@ -6,7 +6,9 @@ const scheduleItem = new Schema({
     subject: {
         type: Schema.Types.ObjectId,
         ref: "Subject"
-    }
+    },
+    numerator: Boolean,
+    denominator: Boolean
 });
 
 scheduleItem
