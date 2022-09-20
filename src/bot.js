@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 const URL = 'https://light-schedule.herokuapp.com';
 
 app.get('/', (req, res) => {
-    res.send('https://t.me/LightScheduleBot')
+    res.send('<a href="https://t.me/LightScheduleBot">Telegram</a>')
 })
 
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
