@@ -13,6 +13,10 @@ app.get('/', (req, res) => {
     res.send('<a href="https://t.me/LightScheduleBot">Telegram</a>')
 })
 
+app.listen(PORT, () => {
+    logger.info(`HTTP server listening ${PORT}`)
+})
+
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 mongoose.connection.on("error", function (err) {
