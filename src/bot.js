@@ -6,7 +6,7 @@ const logger = require("./util/logger")
 
 const app = express();
 
-const PORT = process.env.PORT || 7989;
+const PORT = 7989;
 const URL = 'https://light-schedule.herokuapp.com';
 
 app.get('/', (req, res) => {
