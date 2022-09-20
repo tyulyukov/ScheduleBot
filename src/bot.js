@@ -6,7 +6,7 @@ const logger = require("./util/logger")
 
 const app = express();
 
-const PORT = 7989;
+const PORT = process.env.PORT || 7989;
 const URL = 'https://light-schedule.herokuapp.com';
 
 app.get('/', (req, res) => {
@@ -15,10 +15,6 @@ app.get('/', (req, res) => {
 
 app.on('error', (err) => {
     logger.error(err)
-})
-
-const server = app.listen(PORT, () => {
-    logger.info(`HTTP server listening ${PORT}`)
 })
 
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
