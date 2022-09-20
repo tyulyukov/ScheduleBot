@@ -9,6 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const URL = 'https://light-schedule.herokuapp.com';
 
+app.get('/', (req, res) => {
+    res.send('https://t.me/LightScheduleBot')
+})
+
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 mongoose.connection.on("error", function (err) {
@@ -71,6 +75,17 @@ mongoose.connection.once("open", async function () {
     process.once('SIGINT', () => bot.stop('SIGINT'));
     process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
+    process.env.NODE_ENV === 'production' ? await startProdMode(bot) : await startDevMode(bot);
+})
+
+async function startDevMode(bot) {
+    await bot.telegram.deleteWebhook()
+    await bot.launch()
+
+    logger.info('Starting a bot in development mode');
+}
+
+async function startProdMode(bot) {
     await bot.launch({
         webhook: {
             domain: URL,
@@ -78,13 +93,6 @@ mongoose.connection.once("open", async function () {
         }
     })
 
-    process.env.NODE_ENV === 'production' ? await startProdMode(bot) : startDevMode(bot);
-})
-
-function startDevMode(bot) {
-    logger.info('Starting a bot in development mode');
-}
-
-async function startProdMode(bot) {
+    logger.info(await bot.telegram.getWebhookInfo())
     logger.info('Starting a bot in production mode');
 }
