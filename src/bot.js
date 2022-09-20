@@ -13,7 +13,11 @@ app.get('/', (req, res) => {
     res.send('<a href="https://t.me/LightScheduleBot">Telegram</a>')
 })
 
-app.listen(PORT, () => {
+app.on('error', (err) => {
+    logger.error(err)
+})
+
+const server = app.listen(PORT, () => {
     logger.info(`HTTP server listening ${PORT}`)
 })
 
