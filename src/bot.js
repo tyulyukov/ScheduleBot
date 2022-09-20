@@ -17,7 +17,7 @@ mongoose.connection.on("error", function (err) {
 })
 
 mongoose.connection.once("open", async function () {
-    const { Telegraf, Scenes, Telegram } = require('telegraf')
+    const { Telegraf, Scenes } = require('telegraf')
     const { session } = require('telegraf-session-mongoose')
 
     const start = require("../src/controllers/start/index")
@@ -78,29 +78,13 @@ mongoose.connection.once("open", async function () {
         }
     })
 
-    const webhookStatus = await Telegram.getWebhookInfo();
-    logger.info(webhookStatus);
+    process.env.NODE_ENV === 'production' ? await startProdMode(bot) : startDevMode(bot);
 })
 
-/*function startDevMode(bot) {
+function startDevMode(bot) {
     logger.info('Starting a bot in development mode');
-
-    (`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
-        bot.startPolling()
-    );
 }
 
 async function startProdMode(bot) {
-
-
-    // If webhook not working, check UFW that probably blocks a port...
-    logger.debug('Starting a bot in production mode');
-
-    app.use(await bot.createWebhook({ domain: webhookDomain }));
-    await bot.telegram.setWebhook(`https://light-schedule.herokuapp.com:${process.env.WEBHOOK_PORT}/${process.env.TELEGRAM_TOKEN}`);
-
-    await bot.startWebhook(`/${process.env.TELEGRAM_TOKEN}`, tlsOptions, +process.env.WEBHOOK_PORT);
-
-    const webhookStatus = await Telegram.getWebhookInfo();
-    console.log('Webhook status', webhookStatus);
-}*/
+    logger.info('Starting a bot in production mode');
+}
