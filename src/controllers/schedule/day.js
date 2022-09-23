@@ -12,6 +12,8 @@ scheduleDay.enter(async (ctx) => {
 
     const items = ctx.scene.state.scheduleItems
 
+    logger.info(ctx.scene.state)
+
     await ctx.reply(JSON.stringify(items, null, 2), backKeyboard)
 })
 

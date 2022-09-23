@@ -63,16 +63,18 @@ const thursdayButton = "Четверг"
 const fridayButton = "Пятница"
 const saturdayButton = "Суботта"
 const sundayButton = "Воскресенье"
+const todayButton = "🌄 Сегодня"
 
 const scheduleBackKeyboard = Markup.keyboard([
-    [mondayButton, tuesdayButton],
-    [wednesdayButton, thursdayButton],
-    [fridayButton, saturdayButton],
-    [sundayButton, backButton]
+    [todayButton, mondayButton],
+    [tuesdayButton, wednesdayButton],
+    [thursdayButton, fridayButton],
+    [saturdayButton, sundayButton],
+    [backButton]
 ]).resize()
 
 module.exports = { subjectsButton, scheduleButton, backButton, addButton, deleteButton, editButton, cancelButton,
                    saveButton, acceptButton, editLinksButton, editNameButton, mondayButton, tuesdayButton,
-                   wednesdayButton, thursdayButton, fridayButton, saturdayButton, sundayButton,
+                   wednesdayButton, thursdayButton, fridayButton, saturdayButton, sundayButton, todayButton,
                    mainKeyboard, backKeyboard, addDeleteBackKeyboard, addBackKeyboard, deleteBackKeyboard,
                    cancelKeyboard, saveCancelKeyboard, acceptCancelKeyboard, editCancelKeyboard, scheduleBackKeyboard, }

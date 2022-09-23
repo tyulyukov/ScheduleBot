@@ -2,7 +2,7 @@ const { Scenes } = require("telegraf")
 const logger = require("../../util/logger");
 const Schedule = require("../../database/models/schedule")
 const { mainKeyboard, scheduleBackKeyboard, backButton, mondayButton, tuesdayButton, wednesdayButton, thursdayButton,
-    fridayButton, saturdayButton, sundayButton
+    fridayButton, saturdayButton, sundayButton, todayButton
 } = require("../../util/keyboards");
 const { saveToSession, deleteFromSession } = require("../../util/session");
 
@@ -44,17 +44,39 @@ schedule.leave(async (ctx) => {
 
 schedule.command('back', async (ctx) => await ctx.scene.leave());
 schedule.hears(backButton, async (ctx) => await ctx.scene.leave());
-schedule.hears(mondayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.monday) })
-schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.tuesday) })
-schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.wednesday) })
-schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.thursday) })
-schedule.hears(fridayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.friday) })
-schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.saturday) })
-schedule.hears(sundayButton, async (ctx) => { await enterScheduleDay(ctx, ctx.session.schedule.sunday) })
+schedule.hears(mondayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.monday) })
+schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.tuesday) })
+schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.wednesday) })
+schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.thursday) })
+schedule.hears(fridayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.friday) })
+schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.saturday) })
+schedule.hears(sundayButton, async (ctx) => { await enterScheduleDayScene(ctx, ctx.session.schedule.sunday) })
+schedule.hears(todayButton, async (ctx) => {
+    // TODO locale with user`s timezone
+    const dayOfWeek = new Date(ctx.message.date * 1000).toLocaleString("ua", { weekday: 'short' })
+    await enterScheduleDayScene(ctx, getScheduleDay(ctx.session.schedule, dayOfWeek))
+})
 
-async function enterScheduleDay(ctx, items) {
+async function enterScheduleDayScene(ctx, items) {
     saveToSession(ctx, "isTransition", true)
     await ctx.scene.enter('scheduleDay', { scheduleItems: items })
+}
+
+async function getScheduleDay(schedule, dayOfWeek) {
+    const days = {
+        "пн": schedule.monday,
+        "вт": schedule.tuesday,
+        "ср": schedule.wednesday,
+        "чт": schedule.thursday,
+        "пт": schedule.friday,
+        "ст": schedule.saturday,
+        "нд": schedule.sunday,
+    }
+
+    logger.info(days[dayOfWeek])
+    logger.info(dayOfWeek)
+    logger.info(schedule)
+    return days[dayOfWeek]
 }
 
 module.exports = schedule;
