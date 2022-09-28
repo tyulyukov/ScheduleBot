@@ -9,14 +9,6 @@ const app = express();
 const PORT = process.env.PORT || 7989;
 const URL = 'https://light-schedule.herokuapp.com';
 
-/*app.get('/', (req, res) => {
-    res.send('<a href="https://t.me/LightScheduleBot">Telegram</a>')
-})
-
-app.on('error', (err) => {
-    logger.error(err)
-})*/
-
 mongoose.connect(process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 mongoose.connection.on("error", function (err) {

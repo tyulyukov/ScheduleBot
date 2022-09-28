@@ -2,8 +2,7 @@ const { Scenes } = require("telegraf")
 const logger = require("../../util/logger");
 const Schedule = require("../../database/models/schedule")
 const { mainKeyboard, scheduleBackKeyboard, backButton, mondayButton, tuesdayButton, wednesdayButton, thursdayButton,
-    fridayButton, saturdayButton, sundayButton, todayButton
-} = require("../../util/keyboards");
+    fridayButton, saturdayButton, sundayButton, todayButton } = require("../../util/keyboards");
 const { saveToSession, deleteFromSession } = require("../../util/session");
 
 const schedule = new Scenes.BaseScene("schedule")

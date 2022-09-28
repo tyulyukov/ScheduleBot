@@ -29,15 +29,6 @@ function getSubjectsManageKeyboard(ctx, subjects) {
         else if (subjects.length === 0)
             return addBackKeyboard
     }
-
-    if (!subjects || subjects.length === 0)
-        return addBackKeyboard
-    else if (subjects.length >= maxSubjectsLength && ctx.session.selectedSubject)
-        return deleteBackKeyboard
-    else if (ctx.session.selectedSubject)
-        return addDeleteBackKeyboard
-    else
-        return addBackKeyboard
 }
 
 function getInlineSubjectsKeyboard(subjects, page) {
