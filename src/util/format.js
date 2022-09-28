@@ -12,4 +12,6 @@ function formatTextByNumber (number, texts) {
         return texts[2];
 }
 
+// format time
+
 module.exports = { formatTextByNumber }

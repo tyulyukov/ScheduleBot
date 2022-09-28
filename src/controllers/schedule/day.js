@@ -5,8 +5,50 @@ const { backButton, backKeyboard, addButton, deleteBackKeyboard, addBackKeyboard
 const {formatTextByNumber} = require("../../util/format");
 
 const maxScheduleItemsLength = 50
+const scheduleItemsPerPage = 5
 
 const scheduleDay = new Scenes.BaseScene("scheduleDay")
+
+const prevPageButton = 'prevPage'
+const nextPageButton = 'nextPage'
+const pageButton = 'page'
+
+function getItemsManageKeyboard(ctx, items) {
+    if (ctx.session.selectedItem) {
+        if (items.length >= maxScheduleItemsLength)
+            return deleteBackKeyboard
+        else if (items.length === 0)
+            return addBackKeyboard
+    }
+    else {
+        if (items.length >= maxScheduleItemsLength)
+            return backKeyboard
+        else if (items.length === 0)
+            return addBackKeyboard
+    }
+}
+
+function getInlineItemsKeyboard(items, page) {
+    if (!page)
+        page = 0;
+
+    const paginatedItems = items.slice(page * scheduleItemsPerPage, page * scheduleItemsPerPage + scheduleItemsPerPage);
+
+    const buttons = []
+    for (const item of paginatedItems) {
+        let button = `${item.name}`
+
+        buttons.push([Markup.button.callback(button, item._id)])
+    }
+
+    buttons.push([
+        Markup.button.callback(`⬅️`, prevPageButton),
+        Markup.button.callback(`стр ${page + 1}/${Math.ceil(items.length / subjectPerPage)}`, pageButton),
+        Markup.button.callback(`➡️`, nextPageButton),
+    ])
+
+    return Markup.inlineKeyboard(buttons)
+}
 
 scheduleDay.enter(async (ctx) => {
     if (!ctx.scene.state.scheduleItems) {
