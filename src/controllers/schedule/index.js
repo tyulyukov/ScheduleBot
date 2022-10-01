@@ -35,7 +35,7 @@ schedule.enter(async (ctx) => {
 schedule.leave(async (ctx) => {
     if (ctx.session["isTransition"] !== true) {
         deleteFromSession(ctx, "schedule")
-        await ctx.replyWithHTML("Главное меню", mainKeyboard);
+        await ctx.replyWithHTML("📋 <b>Главное меню</b>", mainKeyboard);
     }
 
     deleteFromSession(ctx, "isTransition")
@@ -58,7 +58,8 @@ schedule.hears(todayButton, async (ctx) => {
 
 async function enterScheduleDayScene(ctx, items) {
     saveToSession(ctx, "isTransition", true)
-    await ctx.scene.enter('scheduleDay', { scheduleItems: items })
+    saveToSession(ctx, "scheduleItems", items)
+    await ctx.scene.enter('scheduleDay')
 }
 
 async function getScheduleDay(schedule, dayOfWeek) {
@@ -72,9 +73,6 @@ async function getScheduleDay(schedule, dayOfWeek) {
         "нд": schedule.sunday,
     }
 
-    logger.info(days[dayOfWeek])
-    logger.info(dayOfWeek)
-    logger.info(schedule)
     return days[dayOfWeek]
 }
 

@@ -12,6 +12,16 @@ function formatTextByNumber (number, texts) {
         return texts[2];
 }
 
-// format time
+function formatTime(date) {
+    const dateTime = new Date(date)
+    return `${convert2digits(dateTime.getHours())}:${convert2digits(dateTime.getMinutes())}`
+}
 
-module.exports = { formatTextByNumber }
+function convert2digits(number) {
+    if (number < 10)
+        return `0${number}`
+
+    return number.toString()
+}
+
+module.exports = { formatTextByNumber, formatTime, convert2digits }

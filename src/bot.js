@@ -30,6 +30,7 @@ mongoose.connection.once("open", async function () {
 
     const schedule = require("../src/controllers/schedule/index")
     const scheduleDay = require("../src/controllers/schedule/day")
+    const addScheduleItem = require("../src/controllers/schedule/add")
 
     const { mainKeyboard, subjectsButton, scheduleButton } = require("./util/keyboards")
 
@@ -43,7 +44,8 @@ mongoose.connection.once("open", async function () {
         deleteSubject,
         editSubject,
         editSubjectName,
-        scheduleDay
+        scheduleDay,
+        addScheduleItem
     ]);
 
     bot.use(session({ collectionName: 'sessions' }));

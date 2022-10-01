@@ -1,8 +1,7 @@
 const { Scenes, Markup } = require("telegraf")
-const logger = require("../../util/logger");
-const Schedule = require("../../database/models/schedule")
-const { backButton, backKeyboard, addButton, deleteBackKeyboard, addBackKeyboard, addDeleteBackKeyboard} = require("../../util/keyboards");
-const {formatTextByNumber} = require("../../util/format");
+const { backButton, backKeyboard, addButton, deleteBackKeyboard, addBackKeyboard, addDeleteBackKeyboard, mainKeyboard} = require("../../util/keyboards");
+const { formatTime } = require("../../util/format");
+const {deleteFromSession, saveToSession} = require("../../util/session");
 
 const maxScheduleItemsLength = 50
 const scheduleItemsPerPage = 5
@@ -26,6 +25,15 @@ function getItemsManageKeyboard(ctx, items) {
         else if (items.length === 0)
             return addBackKeyboard
     }
+
+    if (!items || items.length === 0)
+        return addBackKeyboard
+    else if (items.length >= maxScheduleItemsLength && ctx.session.selectedItem)
+        return deleteBackKeyboard
+    else if (ctx.session.selectedItem)
+        return addDeleteBackKeyboard
+    else
+        return addBackKeyboard
 }
 
 function getInlineItemsKeyboard(items, page) {
@@ -36,14 +44,14 @@ function getInlineItemsKeyboard(items, page) {
 
     const buttons = []
     for (const item of paginatedItems) {
-        let button = `${item.name}`
+        let button = `${formatTime(item.time)} - ${item.name}`
 
         buttons.push([Markup.button.callback(button, item._id)])
     }
 
     buttons.push([
         Markup.button.callback(`⬅️`, prevPageButton),
-        Markup.button.callback(`стр ${page + 1}/${Math.ceil(items.length / subjectPerPage)}`, pageButton),
+        Markup.button.callback(`стр ${page + 1}/${Math.ceil(items.length / scheduleItemsPerPage)}`, pageButton),
         Markup.button.callback(`➡️`, nextPageButton),
     ])
 
@@ -51,15 +59,15 @@ function getInlineItemsKeyboard(items, page) {
 }
 
 scheduleDay.enter(async (ctx) => {
-    if (!ctx.scene.state.scheduleItems) {
+    if (!ctx.session.scheduleItems) {
         await ctx.scene.enter('schedule')
     }
 
-    const items = ctx.scene.state.scheduleItems
-    const keyboard = getSubjectsManageKeyboard(ctx, items)
+    const items = ctx.session.scheduleItems
+    const keyboard = getItemsManageKeyboard(ctx, items)
 
     if (items && items.length > 0) {
-        const inlineSubjectsKeyboard = getInlineSubjectsKeyboard(items, 0)
+        const inlineSubjectsKeyboard = getInlineItemsKeyboard(items, 0)
 
         await ctx.replyWithHTML(`<b>Расписание (${items.length} из ${maxScheduleItemsLength})</b>`, keyboard);
         await ctx.replyWithHTML(`📌 Нажмите на урок из расписания для просмотра подробной информации, удаления и редактирования\n\n`, inlineSubjectsKeyboard)
@@ -70,10 +78,24 @@ scheduleDay.enter(async (ctx) => {
 })
 
 scheduleDay.leave(async (ctx) => {
+    if (ctx.session["isTransition"] !== true) {
+        deleteFromSession(ctx, "scheduleItems")
+    }
 
+    deleteFromSession(ctx, "isTransition")
 });
 
 scheduleDay.command('back', async (ctx) => await ctx.scene.enter('schedule'));
 scheduleDay.hears(backButton, async (ctx) => await ctx.scene.enter('schedule'));
+scheduleDay.hears(addButton, async (ctx) => {
+    if (ctx.session.scheduleItems && ctx.session.scheduleItems.length >= maxScheduleItemsLength) {
+        const keyboard = getItemsManageKeyboard(ctx, ctx.session.scheduleItems)
+        await ctx.replyWithHTML(`🚫 <b>Нельзя</b> добавить уроков больше чем ${maxScheduleItemsLength}`, keyboard)
+        return
+    }
+
+    saveToSession(ctx, "isTransition", true)
+    await ctx.scene.enter('addScheduleItem')
+})
 
 module.exports = scheduleDay;
