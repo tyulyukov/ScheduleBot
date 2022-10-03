@@ -14,6 +14,7 @@ function formatTextByNumber (number, texts) {
 
 function formatTime(date) {
     const dateTime = new Date(date)
+    // return dateTime.toLocaleString("ua", { hour: '2-digit', minute: '2-digit' })
     return `${convert2digits(dateTime.getHours())}:${convert2digits(dateTime.getMinutes())}`
 }
 
@@ -24,4 +25,8 @@ function convert2digits(number) {
     return number.toString()
 }
 
-module.exports = { formatTextByNumber, formatTime, convert2digits }
+function convertTextToDateTime(text) {
+    return new Date('01/01/1970 ' + text);
+}
+
+module.exports = { formatTextByNumber, formatTime, convert2digits, convertTextToDateTime }
