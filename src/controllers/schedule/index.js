@@ -43,16 +43,16 @@ schedule.leave(async (ctx) => {
 
 schedule.command('back', async (ctx) => await ctx.scene.leave());
 schedule.hears(backButton, async (ctx) => await ctx.scene.leave());
-schedule.hears(mondayButton, async (ctx) => { await enterScheduleDayScene(ctx, "пн") })
-schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "вт") })
-schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "ср") })
-schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "чт") })
-schedule.hears(fridayButton, async (ctx) => { await enterScheduleDayScene(ctx, "пт") })
-schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "ст") })
-schedule.hears(sundayButton, async (ctx) => { await enterScheduleDayScene(ctx, "нд") })
+schedule.hears(mondayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Mon") })
+schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Tues") })
+schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Wed") })
+schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Thurs") })
+schedule.hears(fridayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Fri") })
+schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Sat") })
+schedule.hears(sundayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Sun") })
 schedule.hears(todayButton, async (ctx) => {
     // TODO locale with user`s timezone
-    const dayCode = new Date(ctx.message.date * 1000).toLocaleString("ua", { weekday: 'short' })
+    const dayCode = new Date(ctx.message.date * 1000).toLocaleString("en", { weekday: 'short' })
     logger.info(dayCode)
     await enterScheduleDayScene(ctx, dayCode)
 })

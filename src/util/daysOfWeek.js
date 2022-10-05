@@ -1,12 +1,12 @@
 function getLocalizedDayName(dayCode) {
     const days = {
-        "пн": "Понедельник",
-        "вт": "Вторник",
-        "ср": "Среда",
-        "чт": "Четверг",
-        "пт": "Пятница",
-        "ст": "Суббота",
-        "нд": "Воскресенье",
+        "Mon": "Понедельник",
+        "Tues": "Вторник",
+        "Wed": "Среда",
+        "Thurs": "Четверг",
+        "Fri": "Пятница",
+        "Sat": "Суббота",
+        "Sun": "Воскресенье",
     }
 
     return days[dayCode]
@@ -14,13 +14,13 @@ function getLocalizedDayName(dayCode) {
 
 function getDatabaseDayName(dayCode) {
     const days = {
-        "пн": "monday",
-        "вт": "tuesday",
-        "ср": "wednesday",
-        "чт": "thursday",
-        "пт": "friday",
-        "ст": "saturday",
-        "нд": "sunday",
+        "Mon": "monday",
+        "Tues": "tuesday",
+        "Wed": "wednesday",
+        "Thurs": "thursday",
+        "Fri": "friday",
+        "Sat": "saturday",
+        "Sun": "sunday",
     }
 
     return days[dayCode]
