@@ -53,6 +53,7 @@ schedule.hears(sundayButton, async (ctx) => { await enterScheduleDayScene(ctx, "
 schedule.hears(todayButton, async (ctx) => {
     // TODO locale with user`s timezone
     const dayCode = new Date(ctx.message.date * 1000).toLocaleString("ua", { weekday: 'short' })
+    logger.info(dayCode)
     await enterScheduleDayScene(ctx, dayCode)
 })
 

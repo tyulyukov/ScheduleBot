@@ -4,6 +4,7 @@ const { formatTime } = require("../../util/format");
 const { deleteFromSession, saveToSession } = require("../../util/session");
 const ScheduleItem = require("../../database/models/scheduleItem");
 const { getLocalizedDayName, getDatabaseDayName} = require("../../util/daysOfWeek");
+const logger = require("../../util/logger");
 
 const maxScheduleItemsLength = 50
 const scheduleItemsPerPage = 5
@@ -68,6 +69,7 @@ scheduleDay.enter(async (ctx) => {
 
     // TODO sort by date
     const items = ctx.session.schedule[getDatabaseDayName(ctx.session.dayCode)]
+    logger.info(items)
     items.sort((a, b) => new Date(b.time) - new Date(a.time));
     saveToSession(ctx, "scheduleItems", items)
     const keyboard = getItemsManageKeyboard(ctx, items)
