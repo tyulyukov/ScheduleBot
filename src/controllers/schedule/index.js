@@ -46,14 +46,14 @@ schedule.hears(backButton, async (ctx) => await ctx.scene.leave());
 schedule.hears(mondayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Mon") })
 schedule.hears(tuesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Tues") })
 schedule.hears(wednesdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Wed") })
-schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Thurs") })
+schedule.hears(thursdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Thu") })
 schedule.hears(fridayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Fri") })
 schedule.hears(saturdayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Sat") })
 schedule.hears(sundayButton, async (ctx) => { await enterScheduleDayScene(ctx, "Sun") })
 schedule.hears(todayButton, async (ctx) => {
     // TODO locale with user`s timezone
     const dayCode = new Date(ctx.message.date * 1000).toLocaleString("en", { weekday: 'short' })
-    logger.info(dayCode)
+    //logger.info(dayCode)
     await enterScheduleDayScene(ctx, dayCode)
 })
 

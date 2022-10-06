@@ -3,6 +3,7 @@ const { backButton, backKeyboard, addButton, deleteBackKeyboard, addBackKeyboard
 const { formatTime } = require("../../util/format");
 const { deleteFromSession, saveToSession } = require("../../util/session");
 const ScheduleItem = require("../../database/models/scheduleItem");
+const Subject = require("../../database/models/subject");
 const { getLocalizedDayName, getDatabaseDayName} = require("../../util/daysOfWeek");
 const logger = require("../../util/logger");
 
@@ -46,10 +47,13 @@ async function getInlineItemsKeyboard(items, page) {
     const paginatedItems = items.slice(page * scheduleItemsPerPage, page * scheduleItemsPerPage + scheduleItemsPerPage);
 
     const buttons = []
-    for (const id of paginatedItems) {
-        let scheduleItem = await ScheduleItem.findById(id.toString())
-        let button = `${formatTime(scheduleItem.time)} - ${scheduleItem.subject.name}`
+    for (const scheduleItem of paginatedItems) {
+        let subjectName = scheduleItem.subject.name
 
+        if (!subjectName)
+            subjectName = (await Subject.findById(scheduleItem.subject.toString())).name
+
+        const button = `${formatTime(scheduleItem.time)} - ${subjectName}`
         buttons.push([Markup.button.callback(button, scheduleItem._id)])
     }
 
@@ -63,28 +67,39 @@ async function getInlineItemsKeyboard(items, page) {
 }
 
 scheduleDay.enter(async (ctx) => {
-    if (!ctx.session.dayCode) {
-        await ctx.scene.enter('schedule')
+    if (!ctx.session.dayCode)
+        return await ctx.scene.enter('schedule')
+
+    const dbDayName = getDatabaseDayName(ctx.session.dayCode)
+    const items = ctx.session.schedule[dbDayName]
+
+    if (!items)
+        return await ctx.scene.enter('schedule')
+
+    const populatedItems = []
+    for (const id of items) {
+        const item = await ScheduleItem.findById(id.toString())
+
+        if (item)
+            populatedItems.push(item)
     }
 
-    // TODO sort by date
-    const items = ctx.session.schedule[getDatabaseDayName(ctx.session.dayCode)]
-    logger.info(items)
-    items.sort((a, b) => new Date(b.time) - new Date(a.time));
-    saveToSession(ctx, "scheduleItems", items)
-    const keyboard = getItemsManageKeyboard(ctx, items)
+    const sortedItems = populatedItems.sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    saveToSession(ctx, "scheduleItems", sortedItems)
+    const keyboard = getItemsManageKeyboard(ctx, sortedItems)
     const dayName = getLocalizedDayName(ctx.session.dayCode)
 
-    if (items && items.length > 0) {
-        const inlineSubjectsKeyboard = await getInlineItemsKeyboard(items, 0)
+    if (sortedItems && sortedItems.length > 0) {
+        const inlineSubjectsKeyboard = await getInlineItemsKeyboard(sortedItems, 0)
 
-        await ctx.replyWithHTML(`<b>${dayName}</b> (${items.length} из ${maxScheduleItemsLength})`, keyboard);
+        await ctx.replyWithHTML(`<b>${dayName}</b> (${sortedItems.length} из ${maxScheduleItemsLength})`, keyboard);
         await ctx.replyWithHTML(`📌 Нажмите на урок из расписания для просмотра подробной информации, удаления и редактирования\n\n`, inlineSubjectsKeyboard)
     }
     else {
         await ctx.replyWithHTML(`У вас 0 уроков на <b>${dayName}</b>, добавьте новый с помощью кнопки <b>${addButton}</b>`, keyboard);
     }
-})
+ })
 
 scheduleDay.leave(async (ctx) => {
     if (ctx.session["isTransition"] !== true) {
@@ -92,6 +107,7 @@ scheduleDay.leave(async (ctx) => {
         deleteFromSession(ctx, "scheduleItems")
     }
 
+    deleteFromSession(ctx, "schedulePage")
     deleteFromSession(ctx, "isTransition")
 });
 
@@ -114,7 +130,8 @@ scheduleDay.on('callback_query', async (ctx) => {
     if (ctx.callbackQuery.data === prevPageButton) {
         if (ctx.session.schedulePage > 0) {
             saveToSession(ctx, "schedulePage", ctx.session.schedulePage - 1)
-            await ctx.editMessageReplyMarkup(getInlineItemsKeyboard(ctx.session.scheduleItems, ctx.session.schedulePage).reply_markup)
+            const keyboard = await getInlineItemsKeyboard(ctx.session.scheduleItems, ctx.session.schedulePage)
+            await ctx.editMessageReplyMarkup(keyboard.reply_markup)
         }
 
         return await ctx.answerCbQuery()
@@ -122,7 +139,8 @@ scheduleDay.on('callback_query', async (ctx) => {
     else if (ctx.callbackQuery.data === nextPageButton) {
         if (ctx.session.schedulePage + 1 < Math.ceil(ctx.session.scheduleItems.length / scheduleItemsPerPage)) {
             saveToSession(ctx, "schedulePage", ctx.session.schedulePage + 1)
-            await ctx.editMessageReplyMarkup(getInlineItemsKeyboard(ctx.session.scheduleItems, ctx.session.schedulePage).reply_markup)
+            const keyboard = await getInlineItemsKeyboard(ctx.session.scheduleItems, ctx.session.schedulePage)
+            await ctx.editMessageReplyMarkup(keyboard.reply_markup)
         }
 
         return await ctx.answerCbQuery()

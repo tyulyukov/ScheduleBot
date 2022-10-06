@@ -65,8 +65,7 @@ mongoose.connection.once("open", async function () {
         await ctx.scene.enter('schedule')
     })
 
-    bot.catch(err => {
-        logger.error(err.message)
+    bot.catch(err => {logger.error(err.message)
         console.error(err)
     })
 
